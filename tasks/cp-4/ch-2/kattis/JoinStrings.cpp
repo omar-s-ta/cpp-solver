@@ -1,4 +1,5 @@
 #include <array>
+#include <cstddef>
 #include <deque>
 #include <iostream>
 #include <list>
@@ -90,8 +91,8 @@ class problem {
       lists[i].emplace_back(i);
     }
 
-    int at = 0;
-    int sizes = 0;
+    std::size_t at = 0;
+    std::size_t sizes = 0;
 
     for (int a, b; --n != 0;) {
       in >> a >> b;
