@@ -71,7 +71,7 @@ inline void std_read(std::istream& in, Ts&... ts) {
 using namespace io;
 
 /**
- * One of the rare problems where you need think about
+ * One of the rare problems where you need to think about
  * which linear data-structure is suitable here.
  * You want to avoid:
  *   1. linear time string concatenation.
