@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <deque>
 #include <iostream>
+#include <ranges>
 #include <string>
 #include <string_view>
 
@@ -88,6 +89,20 @@ class problem {
       auto [ptr, _] = std::from_chars(b, e, v);
       ns.emplace_back(v);
       b = ptr + 1;
+    }
+    return ns;
+  }
+
+  std::deque<int> int_list_with_views(std::string_view vs) {
+    vs.remove_prefix(1);
+    vs.remove_suffix(1);
+
+    std::deque<int> ns;
+    for (auto part : vs | std::views::split(',')) {
+      int v;
+      auto str_view = std::string_view(part);
+      std::from_chars(str_view.data(), str_view.data() + str_view.size(), v);
+      ns.emplace_back(v);
     }
     return ns;
   }

@@ -1,13 +1,15 @@
 #ifndef MATRIX
 #define MATRIX
 
-template<typename T>
-struct matrix {
+#include <algorithm>
+#include <vector>
 
-  template<typename O>
+template <typename T>
+struct matrix {
+  template <typename O>
   using container = std::vector<std::vector<O>>;
 
-  template<typename O>
+  template <typename O>
   using enable_if_convertible = typename std::enable_if<std::is_convertible<O, T>::value>::type;
 
   container<T>::iterator begin() { return values.begin(); };
@@ -21,20 +23,16 @@ struct matrix {
     return identity;
   }
 
-  matrix(const int _rows, const int _cols = -1) {
-    init(_rows, _cols);
-  }
+  matrix(const int _rows, const int _cols = -1) { init(_rows, _cols); }
 
-  template<typename U, typename = enable_if_convertible<U>>
+  template <typename U, typename = enable_if_convertible<U>>
   matrix(const int _rows, const int _cols, U&& value) {
     init(_rows, _cols, std::forward<U>(value));
   }
 
-  matrix(const std::vector<std::string>& _values) {
-    init(_values);
-  }
+  matrix(const std::vector<std::string>& _values) { init(_values); }
 
-  template<typename U>
+  template <typename U>
   explicit matrix(const container<U>& _values) {
     init(_values);
   }
@@ -45,7 +43,7 @@ struct matrix {
     values.assign(rows, std::vector<T>(cols, 0));
   }
 
-  template<typename U, typename = enable_if_convertible<U>>
+  template <typename U, typename = enable_if_convertible<U>>
   void init(const int _rows, const int _cols, U&& value) {
     rows = _rows;
     cols = _cols;
@@ -63,109 +61,97 @@ struct matrix {
     cols = _cols;
   }
 
-  template<typename U>
+  template <typename U>
   void init(const container<U>& _values) {
     values = _values;
     rows = values.size();
     cols = values[0].size();
   }
 
-  template<typename U, typename = enable_if_convertible<U>>
+  template <typename U, typename = enable_if_convertible<U>>
   inline void fill(U&& value) {
-    for (auto& row : values)
-      std::fill(row.begin(), row.end(), std::forward<U>(value));
+    for (auto& row : values) std::fill(row.begin(), row.end(), std::forward<U>(value));
   }
 
-  template<typename Fun>
+  template <typename Fun>
   inline void for_each(Fun&& f) {
     for (int i = 0; i < rows; i++)
-      for (int j = 0; j < cols; j++)
-        f(values[i][j]);
+      for (int j = 0; j < cols; j++) f(values[i][j]);
   }
-  template<typename Fun>
+  template <typename Fun>
   inline void for_each_with_indices(Fun&& f) {
     for (int i = 0; i < rows; i++)
-      for (int j = 0; j < cols; j++)
-        f(i, j, values[i][j]);
+      for (int j = 0; j < cols; j++) f(i, j, values[i][j]);
   }
-  template<typename Pred>
+  template <typename Pred>
   inline bool for_all(Pred&& pred) const {
     for (int i = 0; i < rows; i++)
       for (int j = 0; j < cols; j++)
-        if (!pred(values[i][j]))
-          return false;
+        if (!pred(values[i][j])) return false;
     return true;
   }
-  template<typename Pred>
+  template <typename Pred>
   inline bool for_all_with_indices(Pred&& pred) const {
     for (int i = 0; i < rows; i++)
       for (int j = 0; j < cols; j++)
-        if (!pred(i, j, values[i][j]))
-          return false;
+        if (!pred(i, j, values[i][j])) return false;
     return true;
   }
-  template<typename Pred>
+  template <typename Pred>
   inline bool any_of(Pred&& pred) const {
     for (int i = 0; i < rows; i++)
       for (int j = 0; j < cols; j++)
-        if (pred(values[i][j]))
-          return true;
+        if (pred(values[i][j])) return true;
     return false;
   }
-  template<typename Pred>
+  template <typename Pred>
   inline bool any_of_with_indices(Pred&& pred) const {
     for (int i = 0; i < rows; i++)
       for (int j = 0; j < cols; j++)
-        if (pred(i, j, values[i][j]))
-          return true;
+        if (pred(i, j, values[i][j])) return true;
     return false;
   }
 
-  template<typename U, typename = enable_if_convertible<U>>
+  template <typename U, typename = enable_if_convertible<U>>
   inline int count(U&& value) const {
     int cnt = 0;
     for (const auto& row : values)
       cnt += std::count(row.begin(), row.end(), std::forward<U>(value));
     return cnt;
   }
-  template<typename Pred>
+  template <typename Pred>
   inline int count_if(Pred&& pred) const {
     int cnt = 0;
     for (int i = 0; i < rows; i++)
-      for (int j = 0; j < cols; j++)
-        cnt += pred(values[i][j]);
+      for (int j = 0; j < cols; j++) cnt += pred(values[i][j]);
     return cnt;
   }
-  template<typename Pred>
+  template <typename Pred>
   inline int count_if_with_indices(Pred&& pred) const {
     int cnt = 0;
     for (int i = 0; i < rows; i++)
-      for (int j = 0; j < cols; j++)
-        cnt += pred(i, j, values[i][j]);
+      for (int j = 0; j < cols; j++) cnt += pred(i, j, values[i][j]);
     return cnt;
   }
 
   std::pair<int, int> find_first_of(const T& value) const {
     for (int i = 0; i < rows; i++)
       for (int j = 0; j < cols; j++)
-        if (values[i][j] == value)
-          return {i, j};
+        if (values[i][j] == value) return {i, j};
     return {-1, -1};
   }
-  template<typename Pred>
+  template <typename Pred>
   std::pair<int, int> find_first_if(Pred&& pred) const {
     for (int i = 0; i < rows; i++)
       for (int j = 0; j < cols; j++)
-        if (pred(values[i][j]))
-          return {i, j};
+        if (pred(values[i][j])) return {i, j};
     return {-1, -1};
   }
-  template<typename Pred>
+  template <typename Pred>
   std::pair<int, int> find_first_if_with_indices(Pred&& pred) const {
     for (int i = 0; i < rows; i++)
       for (int j = 0; j < cols; j++)
-        if (pred(i, j, values[i][j]))
-          return {i, j};
+        if (pred(i, j, values[i][j])) return {i, j};
     return {-1, -1};
   }
 
@@ -198,112 +184,126 @@ struct matrix {
   void transpose() {
     if (is_square()) {
       for (int i = 0; i < rows; i++)
-        for (int j = i + 1; j < cols; j++)
-          std::swap(values[i][j], values[j][i]);
+        for (int j = i + 1; j < cols; j++) std::swap(values[i][j], values[j][i]);
     } else {
       matrix<T> t(cols, rows);
       for (int i = 0; i < rows; i++)
-        for (int j = 0; j < cols; j++)
-          t[j][i] = values[i][j];
+        for (int j = 0; j < cols; j++) t[j][i] = values[i][j];
       *this = t;
     }
   }
 
   inline void rotate(const bool clockwise = true) {
-    if (clockwise) rotate_90_clockwise(); else rotate_90_anti_clockwise();
+    if (clockwise)
+      rotate_90_clockwise();
+    else
+      rotate_90_anti_clockwise();
   }
 
   void reflect_vertically() {
     const int mid = cols / 2;
     for (int i = 0; i < mid; i++)
-      for (int j = 0; j < rows; j++)
-        std::swap(values[j][i], values[j][rows - i - 1]);
+      for (int j = 0; j < rows; j++) std::swap(values[j][i], values[j][rows - i - 1]);
   }
 
-  void reflect_horizontally() {
-    std::reverse(values.begin(), values.end());
+  void reflect_horizontally() { std::reverse(values.begin(), values.end()); }
+
+  template <typename U>
+  matrix<T>& operator+=(U&& u) {
+    for (int i = 0; i < rows; i++)
+      for (int j = 0; j < cols; j++) values[i][j] += u;
+    return *this;
+  }
+  template <typename U>
+  matrix<T>& operator-=(U&& u) {
+    for (int i = 0; i < rows; i++)
+      for (int j = 0; j < cols; j++) values[i][j] -= u;
+    return *this;
+  }
+  template <typename U>
+  matrix<T>& operator*=(U&& u) {
+    for (int i = 0; i < rows; i++)
+      for (int j = 0; j < cols; j++) values[i][j] *= u;
+    return *this;
+  }
+  template <typename U>
+  matrix<T>& operator/=(U&& u) {
+    for (int i = 0; i < rows; i++)
+      for (int j = 0; j < cols; j++) values[i][j] /= u;
+    return *this;
+  }
+  template <typename U>
+  matrix<T> operator+(U&& u) const {
+    return matrix<T>(*this) += u;
+  }
+  template <typename U>
+  matrix<T> operator-(U&& u) const {
+    return matrix<T>(*this) -= u;
+  }
+  template <typename U>
+  matrix<T> operator*(U&& u) const {
+    return matrix<T>(*this) *= u;
+  }
+  template <typename U>
+  matrix<T> operator/(U&& u) const {
+    return matrix<T>(*this) /= u;
   }
 
-  template<typename U> matrix<T>& operator+=(U&& u) {
-    for (int i = 0; i < rows; i++)
-      for (int j = 0; j < cols; j++)
-        values[i][j] += u;
-    return *this;
-  }
-  template<typename U> matrix<T>& operator-=(U&& u) {
-    for (int i = 0; i < rows; i++)
-      for (int j = 0; j < cols; j++)
-        values[i][j] -= u;
-    return *this;
-  }
-  template<typename U> matrix<T>& operator*=(U&& u) {
-    for (int i = 0; i < rows; i++)
-      for (int j = 0; j < cols; j++)
-        values[i][j] *= u;
-    return *this;
-  }
-  template<typename U> matrix<T>& operator/=(U&& u) {
-    for (int i = 0; i < rows; i++)
-      for (int j = 0; j < cols; j++)
-        values[i][j] /= u;
-    return *this;
-  }
-  template<typename U> matrix<T> operator+(U&& u) const { return matrix<T>(*this) += u; }
-  template<typename U> matrix<T> operator-(U&& u) const { return matrix<T>(*this) -= u; }
-  template<typename U> matrix<T> operator*(U&& u) const { return matrix<T>(*this) *= u; }
-  template<typename U> matrix<T> operator/(U&& u) const { return matrix<T>(*this) /= u; }
-
-  template<typename U>
+  template <typename U>
   matrix<T>& operator+=(const matrix<U>& other) {
     assert(rows == other.rows && cols == other.cols);
     for (int i = 0; i < rows; i++)
-      for (int j = 0; j < cols; j++)
-        values[i][j] += other[i][j];
+      for (int j = 0; j < cols; j++) values[i][j] += other[i][j];
     return *this;
   }
-  template<typename U>
+  template <typename U>
   matrix<T>& operator-=(const matrix<U>& other) const {
     assert(rows == other.rows && cols == other.cols);
     for (int i = 0; i < rows; i++)
-      for (int j = 0; j < cols; j++)
-        values[i][j] -= other[i][j];
+      for (int j = 0; j < cols; j++) values[i][j] -= other[i][j];
     return *this;
   }
-  template<typename U>
+  template <typename U>
   matrix<T>& operator/=(const matrix<U>& other) const {
     assert(rows == other.rows && cols == other.cols);
     for (int i = 0; i < rows; i++)
-      for (int j = 0; j < cols; j++)
-        values[i][j] /= other[i][j];
+      for (int j = 0; j < cols; j++) values[i][j] /= other[i][j];
     return *this;
   }
 
-  template<typename U> matrix<T> operator+(const matrix<U>& other) const { return matrix<T>(*this) += other; }
-  template<typename U> matrix<T> operator-(const matrix<U>& other) const { return matrix<T>(*this) -= other; }
-  template<typename U> matrix<T> operator/(const matrix<U>& other) const { return matrix<T>(*this) /= other; }
+  template <typename U>
+  matrix<T> operator+(const matrix<U>& other) const {
+    return matrix<T>(*this) += other;
+  }
+  template <typename U>
+  matrix<T> operator-(const matrix<U>& other) const {
+    return matrix<T>(*this) -= other;
+  }
+  template <typename U>
+  matrix<T> operator/(const matrix<U>& other) const {
+    return matrix<T>(*this) /= other;
+  }
 
-  template<typename U>
+  template <typename U>
   matrix<T> operator*(const matrix<U>& other) const {
     assert(cols == other.cols);
     matrix<T> product(rows, other.cols);
     for (int i = 0; i < rows; i++)
       for (int j = 0; j < cols; j++)
         if (values[i][j] != 0)
-          for (int k = 0; k < other.cols; k++)
-            product[i][k] += values[i][j] * other[j][k];
+          for (int k = 0; k < other.cols; k++) product[i][k] += values[i][j] * other[j][k];
     return product;
   }
-  template<typename U>
+  template <typename U>
   matrix<T>& operator*=(const matrix<U>& other) {
     return *this = *this * other;
   }
-  template<typename U>
+  template <typename U>
   std::vector<T> operator*(const std::vector<U>& column) const {
     assert(cols == int(column.size()));
     std::vector<T> product(rows);
     for (int i = 0; i < rows; i++)
-      for (int j = 0; j < cols; j++)
-        product[i] += values[i][j] * column[j];
+      for (int j = 0; j < cols; j++) product[i] += values[i][j] * column[j];
     return product;
   }
 
@@ -326,9 +326,11 @@ struct matrix {
   T& operator[](const std::pair<int, int>& at) { return values[at.first][at.second]; }
   const T& operator[](const std::pair<int, int>& at) const { return values[at.first][at.second]; }
   T& operator[](const std::tuple<int, int>& at) { return values[std::get<0>(at)][std::get<1>(at)]; }
-  const T& operator[](const std::tuple<int, int>& at) const { return values[std::get<0>(at)][std::get<1>(at)]; }
+  const T& operator[](const std::tuple<int, int>& at) const {
+    return values[std::get<0>(at)][std::get<1>(at)];
+  }
 
-  template<typename U>
+  template <typename U>
   inline bool operator==(const matrix<U>& other) const {
     return values == other.values;
   }
@@ -337,16 +339,15 @@ struct matrix {
     if (std::is_same<T, char>::value) {
       for (int i = 0; i < rows; i++) {
         out << '[';
-        for (int j = 0; j < cols; j++)
-          out << values[i][j];
+        for (int j = 0; j < cols; j++) out << values[i][j];
         out << "]\n";
       }
     } else {
       for (int i = 0; i < rows; i++) {
         out << '[';
         for (int j = 0; j < cols; j++) {
-           out << values[i][j];
-           if (j < cols - 1) out << ", ";
+          out << values[i][j];
+          if (j < cols - 1) out << ", ";
         }
         out << "]\n";
       }
@@ -356,18 +357,16 @@ struct matrix {
   inline void print(std::ostream& out) const {
     if (std::is_same<T, char>::value) {
       for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < cols; j++)
-          out << values[i][j];
+        for (int j = 0; j < cols; j++) out << values[i][j];
         out << '\n';
       }
     } else {
       for (int i = 0; i < rows; i++)
-        for (int j = 0; j < cols; j++)
-          out << values[i][j] << " \n"[j == cols - 1];
+        for (int j = 0; j < cols; j++) out << values[i][j] << " \n"[j == cols - 1];
     }
   }
 
-  template<typename U>
+  template <typename U>
   friend std::istream& operator>>(std::istream& in, matrix<U>& mat) {
     assert(!mat.values.empty());
     if constexpr (std::is_same<T, char>::value) {
@@ -378,29 +377,26 @@ struct matrix {
       }
     } else {
       for (int i = 0; i < mat.rows; i++)
-        for (int j = 0; j < mat.cols; j++)
-          in >> mat[i][j];
+        for (int j = 0; j < mat.cols; j++) in >> mat[i][j];
     }
     return in;
   }
 
-private:
+ private:
   void rotate_90_clockwise() {
     transpose();
     const int mid = cols / 2;
     for (int i = 0; i < rows; i++)
-      for (int j = 0; j < mid; j++)
-        std::swap(values[i][j], values[i][cols - j - 1]);
+      for (int j = 0; j < mid; j++) std::swap(values[i][j], values[i][cols - j - 1]);
   }
 
   void rotate_90_anti_clockwise() {
     transpose();
     const int mid = rows / 2;
-    for (int i = 0; i < mid; i++)
-      std::swap(values[i], values[rows - i - 1]);
+    for (int i = 0; i < mid; i++) std::swap(values[i], values[rows - i - 1]);
   }
 
-private:
+ private:
   std::vector<std::vector<T>> values;
   int rows, cols;
 };
