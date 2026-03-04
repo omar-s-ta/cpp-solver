@@ -1,24 +1,6 @@
-#include <cstddef>
-#include <cstdint>
 #include <iostream>
-#include <map>
 #include <string>
 #include <vector>
-
-template <typename T>
-inline std::istream& operator>>(std::istream& in, std::vector<T>& ts) {
-  for (T& t : ts) in >> t;
-  return in;
-}
-template <typename T>
-inline std::ostream& operator<<(std::ostream& out, const std::vector<T>& ts) {
-  const std::size_t n = ts.size();
-  for (std::size_t i = 0; i < n; i++) {
-    if (i > 0) out << ' ';
-    out << ts[i];
-  }
-  return out;
-}
 
 class problem {
  public:
@@ -27,27 +9,29 @@ class problem {
     in >> m >> n;
 
     std::vector<std::string> s(m);
-    in >> s;
+    for (auto& x : s) in >> x;
 
-    std::vector<std::map<char, uint16_t>> a(n);
-    for (int i = 0; i < m; i++) {
-      for (size_t j = 0; j < s[i].size(); j++) {
-        a[j][s[i][j]] += 1;
-      }
-    }
-
+    const char dna[] = "ACGT";
     int r = 0;
-    for (const auto& mp : a) {
-      int v = 0;
-      char ch = '-';
-      for (const auto& p : mp) {
-        if (p.second > v) {
-          v = p.second;
-          ch = p.first;
+    for (int j = 0; j < n; j++) {
+      int cnt[4] = {};
+      for (int i = 0; i < m; i++) {
+        for (int k = 0; k < 4; k++) {
+          if (s[i][j] == dna[k]) {
+            cnt[k] += 1;
+          }
         }
       }
-      out << ch;
-      r += m - v;
+
+      int best = 0;
+      for (int k = 0; k < 4; k++) {
+        if (cnt[k] > cnt[best]) {
+          best = k;
+        }
+      }
+
+      out << dna[best];
+      r += m - cnt[best];
     }
     out << '\n' << r << '\n';
   }
