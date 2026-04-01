@@ -1,4 +1,6 @@
+#include <algorithm>
 #include <array>
+#include <cmath>
 #include <cstdint>
 #include <iostream>
 #include <unordered_set>
@@ -28,7 +30,19 @@ class problem {
 int main() {
   std::ios::sync_with_stdio(false);
   std::cin.tie(nullptr);
-  problem solver(std::cin, std::cout);
-  solver.solve();
+
+  for (uint32_t n; std::cin >> n && n != 0;) {
+    uint32_t root = std::round(std::pow(n, 1.0 / 6));
+    bool special = false;
+    for (uint32_t r = std::max(root - 1, uint32_t(0)); r <= root + 1; r++) {
+      uint32_t p = r * r * r * r * r * r;
+      if (p == n) {
+        special = true;
+        break;
+      }
+    }
+    std::cout << (special ? "Special" : "Ordinary") << '\n';
+  }
+
   return 0;
 }
