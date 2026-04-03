@@ -1,4 +1,5 @@
 #include <iostream>
+#include <unordered_map>
 #include <unordered_set>
 #include <vector>
 
@@ -33,11 +34,34 @@ class problem {
     out << r << '\n';
   }
 
+  void solve_one() {
+    int n, m;
+    in >> n >> m;
+
+    std::unordered_map<int, int> f;
+    int value;
+
+    for (int i = 0; i < n; i++) {
+      in >> value;
+      f[value] += 1;
+    }
+    for (int i = 0; i < m; i++) {
+      in >> value;
+      f[value] -= 1;
+    }
+
+    int r = 0;
+    for (const auto& p : f) {
+      r += abs(p.second);
+    }
+    out << r << '\n';
+  }
+
   void solve() {
     int nt;
     in >> nt;
     for (int _ = 1; _ <= nt; _++) {
-      solveOne();
+      solve_one();
     }
   }
 
