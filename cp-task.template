@@ -6,14 +6,14 @@
 
 class problem {
 public:
-  void solveOne() {
+  void solve_one() {
   }
 
   void solve() {
     int nt;
     in >> nt;
     for (int _ = 1; _ <= nt; _++) {
-      solveOne();
+      solve_one();
     }
   }
 
