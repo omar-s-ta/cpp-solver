@@ -1,8 +1,12 @@
+#include <cstdint>
 #include <iostream>
-#include <vector>
-#include <deque>
-#include <array>
-#include <string>
+
+using i16 = int16_t;
+using i32 = int32_t;
+using i64 = int64_t;
+using u16 = uint16_t;
+using u32 = uint32_t;
+using u64 = uint64_t;
 
 class problem {
 public:
@@ -10,9 +14,9 @@ public:
   }
 
   void solve() {
-    int nt;
+    u32 nt;
     in >> nt;
-    for (int _ = 1; _ <= nt; _++) {
+    for (u32 _ = 1; _ <= nt; _++) {
       solve_one();
     }
   }
