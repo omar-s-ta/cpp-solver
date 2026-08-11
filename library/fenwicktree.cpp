@@ -120,6 +120,35 @@ class FenwickTree {
   // Creates a tree directly from the value array f. O(m).
   FenwickTree(const vll& f) { build(f); }
 
+  // Disambiguating tag for the all-ones constructor below. It exists because
+  // FenwickTree(int) already means "all zeros", so the two cannot be told apart
+  // by arity, and a bare bool argument at the call site would say nothing.
+  struct all_ones_t {};
+
+  // (Re)builds the tree over [0, m-1] with every element equal to 1 -- read as a
+  // frequency table, every key in [0, m-1] present exactly once. O(m).
+  //
+  // Equivalent to build(vll(m, 1)) but without materialising that vector: ft[i]
+  // covers [i & (i+1), i], so over all-ones data it simply holds that block's
+  // length, which the header derives as LSOne(i+1) == (i+1) & -(i+1). Worth the
+  // separate method because the temporary is the same size as the tree itself --
+  // for m = 2e6 that is 16 MB of peak instead of 8 MB, since f and ft are both
+  // live while build() reads one into the other.
+  //
+  // Useful whenever an algorithm starts from "every key is present" and only ever
+  // removes -- the lucky-number and Josephus families of sieves, where the
+  // survivors are found by repeatedly deleting the k-th remaining element. For a
+  // domain that starts at 1 rather than 0, follow with update(0, -1), or
+  // OrderStatSet::remove(0) on the wrapper below.
+  void build_ones(int m) {
+    ft.assign(m, 0);
+    for (int i = 0; i < m; ++i)      // O(m)
+      ft[i] = (i + 1) & -(i + 1);    // == the length of [i & (i+1), i]
+  }
+
+  // Creates a tree over [0, m-1] with every element equal to 1. O(m).
+  FenwickTree(int m, all_ones_t) { build_ones(m); }
+
   // Creates a frequency tree over the keys [0, m-1] from the multiset s:
   // afterwards rsq(i, j) counts how many elements of s lie in [i, j].
   // Every s[k] must be in [0, m-1]. O(m + n) with n == s.size().
@@ -464,6 +493,12 @@ class OrderStatSet {
  public:
   // Creates an empty set over the keys [0, m-1]. O(m).
   OrderStatSet(int m) : ft(m) {}
+
+  // Creates a set over [0, m-1] already holding every key exactly once, so
+  // size() == m and kth(k) == k-1. O(m) time and no O(m) temporary -- see
+  // FenwickTree::build_ones. This is the entry point the deletion sieves want:
+  // start full, then remove(). O(m).
+  OrderStatSet(int m, FenwickTree::all_ones_t tag) : ft(m, tag), n(m) {}
 
   // Size of the key domain, i.e. the m it was built with. O(1).
   int domain() const { return ft.size(); }
